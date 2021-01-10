@@ -1,0 +1,136 @@
+<!--This program is an extension of htmlhotel03.html
+This one is cleaner and has functions in an object as methods.
+Everything works correctly!!!!-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>Alidas JavaScript Hotel</title>
+
+</head>
+
+<body>
+
+    <h1>Welcome to JavaScriptHotel</h1>
+    <h3 id='availabilityStatement'>Please stay with us a night!</h3>
+
+    <!--booking rooms section-->
+    <label for='rooms'>Please select a room to book:</label>
+    <select name='selRooms' id='rooms'>
+    </select>
+    <br></br>
+
+    <label for='checkInDate'>Select a check-in date:</label>
+    <input type='date' id='checkInDate' name='checkInInput' value='2020-12-01'>
+    <br></br>
+    <label for='checkInDate'>Select a check-out date:</label>
+    <input type='date' id='checkOutDate' name='checkOutInput' value='2020-12-01'>
+
+    <br></br>
+
+    <button onclick='hotelMethods.calculateStayCost()'>Calculate price of stay</button>
+    <br></br>
+    <button onclick='hotelMethods.bookRoom()'>Book room</button>
+
+    <br></br>
+
+    <!-- unbooking rooms section -->
+    <label for='bookedRooms'>Please select a room to unbook:</label>
+    <select name='selBookedRooms' id='bookedRooms'></select>
+    <br></br>
+    <button onclick='hotelMethods.unbookRoom()'>Unbook room</button>
+
+</body>
+
+<script> //use JavaScript here
+    let hotel = {
+        availableRooms: [[100,101],[200,201],[300]],
+        bookedRooms: [[],[],[]],
+        costOfAvailableRooms: [[100.1,101.1],[200.1,201.1],[300.1]],
+        costOfBookedRooms: [[],[],[]]
+    }
+
+    var hotelMethods = {
+        findNightlyCost: function() {
+            let selectedToBookRoom = parseInt(document.getElementById('rooms').value)
+            for (i = 0; i < hotel.availableRooms.length; i++) {
+                if (hotel.availableRooms[i].indexOf(selectedToBookRoom) !== -1) { //if it's in the array
+                    return hotel.costOfAvailableRooms[i][hotel.availableRooms[i].indexOf(selectedToBookRoom)]
+                }
+            }
+        },
+        calculateStayCost: function() {
+            let checkInDateValue = document.getElementById('checkInDate').value
+            let checkOutDateValue = document.getElementById('checkOutDate').value
+            let stayNightsNum = (new Date(checkOutDateValue)-new Date (checkInDateValue)) / 86400000 //86400000 is the number of milliseconds per day.
+            let costOfStay = hotelMethods.findNightlyCost() * stayNightsNum
+            alert("The cost of stay will be $"+costOfStay+". If you would like to book, please click the \"Book room\" button below.")
+        },
+        loadSelAvailableRooms: function() {
+            let availableRoomsHTML = ''
+            for (let i = 0; i < hotel.availableRooms.length; i++) { 
+                for (let j = 0; j < hotel.availableRooms[i].length; j++) {
+                    availableRoomsHTML += "<option value='"+hotel.availableRooms[i][j]+"'>"+hotel.availableRooms[i][j]+"</option>"
+                }
+            }
+            document.getElementById('rooms').innerHTML = availableRoomsHTML
+        },
+        loadSelBookedRooms: function() {
+            let bookedRoomsHTML = ''
+            for (let i = 0; i < hotel.bookedRooms.length; i++) {
+                for (let j = 0; j < hotel.bookedRooms[i].length; j++) {
+                    bookedRoomsHTML += "<option value='"+hotel.bookedRooms[i][j]+"'>"+hotel.bookedRooms[i][j]+"</option>"
+                }
+            }
+            document.getElementById('bookedRooms').innerHTML = bookedRoomsHTML
+        },
+        bookRoom: function() {
+            let selectedToBookRoom = parseInt(document.getElementById('rooms').value)
+
+            for (i = 0; i < hotel.availableRooms.length; i++) {
+                if (hotel.availableRooms[i].indexOf(selectedToBookRoom) !== -1) { //if it's in the subarray
+                    hotel.costOfBookedRooms[i].push(hotel.costOfAvailableRooms[i].splice(hotel.availableRooms[i].indexOf(selectedToBookRoom),1)[0])
+                    hotel.bookedRooms[i].push(hotel.availableRooms[i].splice(hotel.availableRooms[i].indexOf(selectedToBookRoom),1)[0])
+                }
+            }
+            hotelMethods.loadSelAvailableRooms()
+            hotelMethods.loadSelBookedRooms()
+            alert(selectedToBookRoom+' was just booked.')
+        },
+        unbookRoom: function() {
+            let selectedToUnbookRoom = parseInt(document.getElementById('bookedRooms').value)
+
+            for (i = 0; i < hotel.bookedRooms.length; i++) {
+                if (hotel.bookedRooms[i].indexOf(selectedToUnbookRoom) != -1) { //checks if the room is in the subarray
+                    hotel.costOfAvailableRooms[i].push(hotel.costOfBookedRooms[i].splice(hotel.bookedRooms[i].indexOf(selectedToUnbookRoom),1)[0])
+                    hotel.availableRooms[i].push(hotel.bookedRooms[i].splice(hotel.bookedRooms[i].indexOf(selectedToUnbookRoom),1)[0])
+                }
+            } 
+            hotelMethods.loadSelAvailableRooms()
+            hotelMethods.loadSelBookedRooms()
+            alert(selectedToUnbookRoom+' was just unbooked.')
+        }
+     }
+
+    hotelMethods.loadSelAvailableRooms() //creates the initial dropdown menu for available rooms
+    hotelMethods.loadSelBookedRooms() //creates the initial dropdown menu for booked rooms
+
+</script>
+
+</html>
+
+<!-- These are lines you can use to test if the program is working correctly:
+    Just put them in the bookRoom and unBookRoom methods.
+console.log('------')
+console.log("availableRooms before: "+hotel.availableRooms)
+console.log("bookedRooms before: "+hotel.bookedRooms)
+console.log("costOfAvailableRooms before: "+hotel.costOfAvailableRooms)
+console.log("costOfBookedRooms before: "+hotel.costOfBookedRooms)
+
+console.log('')
+console.log("availableRooms after: "+hotel.availableRooms)
+console.log("bookedRooms after: "+hotel.bookedRooms)
+console.log("costOfAvailableRooms after: "+hotel.costOfAvailableRooms)
+console.log("costOfBookedRooms after: "+hotel.costOfBookedRooms)-->
